@@ -1,0 +1,10 @@
+{
+  "aim_mode_path": "/Bovine Ballistics/Aim Mode",
+  "current_pose_path": "/AdvantageKit/RealOutputs/Odometry/Pose",
+  "local_test": false,
+  "prefix": "/BovineBallistics",
+  "target_pos_path": "/Bovine Ballistics/Target Position",
+  "target_vel_path": "/Bovine Ballistics/Target Velocity",
+  "team_number": 686,
+  "timestamp_path": "/AdvantageKit/Timestamp"
+}

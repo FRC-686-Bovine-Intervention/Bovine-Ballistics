@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Bovine Ballistics Dashboard</title>
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <style>
+        body { font-family: sans-serif; margin: 2rem; }
+        label { display: block; margin-top: 1rem; }
+        input, textarea { width: 100%; padding: 0.5rem; }
+        button { margin-top: 1rem; padding: 0.75rem 1.5rem; }
+    </style>
+</head>
+<body>
+<h1>Bovine Ballistics</h1>
+
+<form action="settings.html">
+    <button type="submit">Go To Settings</button>
+</form>
+
+<b id="timestamp"></b>
+
+<script>
+    const ws = new WebSocket("ws://" + location.host + "/ws");
+
+    ws.onmessage = function (event) {
+        try {
+            const msg = JSON.parse(event.data);
+            if (msg.type === "update" && msg.target && msg.value !== undefined) {
+                const el = document.getElementById(msg.target);
+                if (el) {
+                    el.textContent = msg.value;
+                }
+            }
+        } catch (e) {
+            console.error("Invalid message", e);
+        }
+    };
+</script>
+</body>
+</html>

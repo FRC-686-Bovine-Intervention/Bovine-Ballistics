@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Bovine Ballistics Dashboard | Settings</title>
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <style>
+        body { font-family: sans-serif; margin: 2rem; }
+        label { display: block; margin-top: 1rem; }
+        input, textarea { width: 100%; padding: 0.5rem; }
+        button { margin-top: 1rem; padding: 0.75rem 1.5rem; }
+    </style>
+</head>
+<body>
+<h1>Edit Settings</h1>
+
+<form id="settingsForm">
+    <div id="fields"></div>
+    <button type="submit">Save</button>
+</form>
+
+<script>
+    const form     = document.getElementById('settingsForm');
+    const fieldsEl = document.getElementById('fields');
+
+    async function loadSettings() {
+        try {
+            const txt = await fetch('/settings').then(r => r.text());
+            const settings = JSON.parse(txt);
+            renderForm(settings);
+            } catch (err) {
+            console.error('Failed to load settings:', err);
+        }
+    }
+
+    function renderForm(settings) {
+        fieldsEl.innerHTML = '';
+        for (const [key, val] of Object.entries(settings)) {
+            const label = document.createElement('label');
+            label.textContent = key;
+
+            let input;
+            if (typeof val === 'object') {
+                input = document.createElement('textarea');
+                input.rows = 3;
+                input.value = JSON.stringify(val, null, 2);
+            } else {
+                input = document.createElement('input');
+                input.type  = 'text';
+                input.value = val;
+            }
+
+            input.name = key;
+            label.appendChild(input);
+            fieldsEl.appendChild(label);
+        }
+    }
+
+    form.addEventListener('submit', async e => {
+        e.preventDefault();
+        const data = {};
+        new FormData(form).forEach((v, k) => {
+            try {
+                data[k] = JSON.parse(v);
+            } catch {
+                data[k] = v;
+            }
+        });
+        const res = await fetch('/settings', {
+                method: 'PUT',
+                headers: {'Content-Type':'application/json'},
+                body: JSON.stringify(data, null, 2),
+        });
+        if (res.ok) {
+            alert('Settings saved! Please reset device to apply!');
+        } else {
+            alert('Save failed');
+        }
+    });
+
+    const ws = new WebSocket(`ws://${location.host}/ws`);
+    ws.onmessage = event => {
+        let msg;
+        try { msg = JSON.parse(event.data); }
+        catch { return; }
+        if (msg.type === 'settings_update') {
+            console.log('Settings changed on server; reloading…');
+            loadSettings();
+        }
+    };
+    ws.onopen = () => console.log('WebSocket connected for live updates');
+
+    loadSettings();
+</script>
+</body>
+</html>
