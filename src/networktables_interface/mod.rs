@@ -1,5 +1,4 @@
-//! An example of a CLI that publishes to topics using a GenericPublisher.
-
+// Uses CLI code stolen from examples of the library usage because tokio doesn't like me
 use std::{collections::HashMap, io::stdin};
 use std::sync::{Arc, OnceLock};
 use std::sync::atomic::{AtomicI64, Ordering};
